@@ -10,7 +10,7 @@ public class INFMessage extends Message {
 	
 	public INFMessage(int senderID) {
 		this.senderID = senderID;
-		System.out.println("New message created");
+		//System.out.println("New message created");
 		//this.messageID = nbMessages;
 		nbMessages++;
 	}
@@ -18,7 +18,7 @@ public class INFMessage extends Message {
 	public INFMessage(int senderID, int messageID) {
 		this.senderID = senderID;
 		this.messageID = messageID;
-		System.out.println("MsgID : "+this.messageID);
+		//System.out.println("MsgID : "+this.messageID);
 		nbMessages++;
 	}
 	

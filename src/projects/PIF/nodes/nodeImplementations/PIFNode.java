@@ -42,19 +42,30 @@ public class PIFNode extends Node {
 				System.out.println("Node: "+this.ID+" recebeu INF do Node  "+sender);
 				INFMessage msgINF = (INFMessage) msg;
 				
+				//Setting node level with msg information
+				if(this.nodeLevel > msgINF.getLevel()+1){
+					this.nodeLevel = msgINF.getLevel()+1;
+				}
+				
 				if(!this.reachedList.contains((INFMessage) msg))
 				{
 					this.setColor(Color.GREEN);
-					reachedList.add((INFMessage)msg);
+					reachedList.add(msgINF);
 					//this.reached = true;	
 					this.nextHopToSource = msgINF.getSenderID();
 					msgINF.setSenderID(this.ID);
+					//Modify the level carried by the message
+					msgINF.setLevel(this.nodeLevel+1);
 					MessageTimer infMSG = new MessageTimer(msgINF);
 					infMSG.startRelative(0.1,this);
 					
 					//Agenda o FEEDBACK
 					feedbackTimer = new PIF_FeedbackTimer(this, TNO.TNO_FEEDBACK);
 					feedbackTimer.tnoStartRelative(10, this, TNO.TNO_FEEDBACK);	
+				}else{
+					//Agenda o FEEDBACK
+					feedbackTimer = new PIF_FeedbackTimer(this, TNO.TNO_FEEDBACK);
+					feedbackTimer.tnoStartRelative(0.1, this, TNO.TNO_FEEDBACK);						
 				}
 			}
 			
@@ -99,7 +110,7 @@ public class PIFNode extends Node {
 				this.setColor(Color.RED);
 				this.nextHopToSource = this.ID;
 
-				INFMessage msg = new INFMessage(this.ID, i);
+				INFMessage msg = new INFMessage(this.ID, i, 0);
 				MessageTimer infMSG = new MessageTimer (msg);
 				reachedList.add(msg);
 		  		infMSG.startRelative(0.1, this);

@@ -37,7 +37,7 @@ public class PINode extends Node {
 			if(msg instanceof INFMessage) {
 				//Verifica se � a primeira vez que o n� recebe INF
 				//if(this.reachedList.contains((INFMessage) msg)) System.out.println("contains ");
-				if(!this.reachedList.contains((INFMessage) msg))  System.out.println("DOESNT contains  ");
+				//if(!this.reachedList.contains((INFMessage) msg))  System.out.println("DOESNT contains  ");
 				//System.out.println(reachedList.size());
 				
 				if(!this.reachedList.contains((INFMessage) msg) && this.ID % 3 == 1){
@@ -69,7 +69,7 @@ public class PINode extends Node {
 		//Considerando que o n� 1 tem a mensagem inf
     	
 		if (this.ID==1){
-			for(int i=0; i<2; i++){
+			for(int i=0; i<1000; i++){
 				this.setColor(Color.RED);
 				INFMessage msg = new INFMessage(this.ID, i);
 				MessageTimer infMSG = new MessageTimer (msg);
