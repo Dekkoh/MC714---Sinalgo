@@ -2,6 +2,9 @@ package projects.PI.nodes.nodeImplementations;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
 import projects.PI.nodes.messages.INFMessage;
 import projects.PI.nodes.timers.MessageTimer;
 import sinalgo.configuration.WrongConfigurationException;
@@ -16,6 +19,7 @@ public class PINode extends Node {
 	private boolean reached = false;
 	public static int sentINF = 0;
 	
+	public List<INFMessage> reachedList = new ArrayList<INFMessage>();
 		
 	DecimalFormat deci = new DecimalFormat("0.0000");
 
@@ -32,17 +36,23 @@ public class PINode extends Node {
 			//N� recebeu uma mensagem INF	
 			if(msg instanceof INFMessage) {
 				//Verifica se � a primeira vez que o n� recebe INF
-				if(!this.reached && this.ID % 3 == 1){
+				//if(this.reachedList.contains((INFMessage) msg)) System.out.println("contains ");
+				if(!this.reachedList.contains((INFMessage) msg))  System.out.println("DOESNT contains  ");
+				//System.out.println(reachedList.size());
+				
+				if(!this.reachedList.contains((INFMessage) msg) && this.ID % 3 == 1){
 					this.setColor(Color.GREEN);
-					this.reached = true;
+					reachedList.add((INFMessage)msg);
+					//this.reached = true;
 					Tools.appendToOutput("\n\n TIME: "+ deci.format(Global.currentTime));
 					Tools.appendToOutput("\n Node " + this.ID +" recebeu INF de"+ sender);
 					MessageTimer infMSG = new MessageTimer(msg);
 					infMSG.startRelative(1,this);
 						
-				}else if (!this.reached && this.ID % 3 != 1) {
+				}else if (!this.reachedList.contains((INFMessage) msg) && this.ID % 3 != 1) {
 					this.setColor(Color.GREEN);
-					this.reached = true;
+					//this.reached = true;
+					reachedList.add((INFMessage)msg);
 					Tools.appendToOutput("\n\n TIME: "+ deci.format(Global.currentTime));
 					Tools.appendToOutput("\n Node " + this.ID +" recebeu INF de"+ sender);
 				}
@@ -57,12 +67,16 @@ public class PINode extends Node {
     @Override
 	public void init() {
 		//Considerando que o n� 1 tem a mensagem inf
+    	
 		if (this.ID==1){
-			this.setColor(Color.RED);
-			this.reached = true;
-			MessageTimer infMSG = new MessageTimer (new INFMessage(this.ID));
-	  		infMSG.startRelative(0.1, this);
-		}
+			for(int i=0; i<2; i++){
+				this.setColor(Color.RED);
+				INFMessage msg = new INFMessage(this.ID, i);
+				MessageTimer infMSG = new MessageTimer (msg);
+				reachedList.add(msg);
+		  		infMSG.startRelative(0.1, this);
+			}
+    	}
 
 	}
     
