@@ -29,10 +29,10 @@ public class PINode extends Node {
 			Message msg = inbox.next();
 			sender = inbox.getSender().ID;
 			//Tools.appendToOutput("\n ID : "+ inbox.getReceiver().ID + "\n");
-			//Nó recebeu uma mensagem INF	
+			//Nï¿½ recebeu uma mensagem INF	
 			if(msg instanceof INFMessage) {
-				//Verifica se é a primeira vez que o nó recebe INF
-				if(!this.reached && this.ID % 2 == 1){
+				//Verifica se ï¿½ a primeira vez que o nï¿½ recebe INF
+				if(!this.reached && this.ID % 3 == 1){
 					this.setColor(Color.GREEN);
 					this.reached = true;
 					Tools.appendToOutput("\n\n TIME: "+ deci.format(Global.currentTime));
@@ -40,7 +40,7 @@ public class PINode extends Node {
 					MessageTimer infMSG = new MessageTimer(msg);
 					infMSG.startRelative(1,this);
 						
-				}else if (!this.reached && this.ID % 2 == 0) {
+				}else if (!this.reached && this.ID % 3 != 1) {
 					this.setColor(Color.GREEN);
 					this.reached = true;
 					Tools.appendToOutput("\n\n TIME: "+ deci.format(Global.currentTime));
@@ -56,7 +56,7 @@ public class PINode extends Node {
 
     @Override
 	public void init() {
-		//Considerando que o nó 1 tem a mensagem inf
+		//Considerando que o nï¿½ 1 tem a mensagem inf
 		if (this.ID==1){
 			this.setColor(Color.RED);
 			this.reached = true;
