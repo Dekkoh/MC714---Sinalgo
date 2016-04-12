@@ -8,10 +8,10 @@
 		<dimensions value="2" />
 
 		<!--Length of the deployment field along the x-axis.-->
-		<dimX value="100" />
+		<dimX value="400" />
 
 		<!--Length of the deployment field along the y-axis.-->
-		<dimY value="100" />
+		<dimY value="400" />
 
 		<!--Length of the deployment field along the z-axis.-->
 		<dimZ value="0" />
@@ -59,7 +59,7 @@
 		<javaCmd value="java" />
 
 		<!--Maximum memory the Java VM is allowed to use (in MB)-->
-		<javaVMmaxMem value="512" />
+		<javaVMmaxMem value="1024" />
 
 		<!--***********************************************************************-->
 		<!--  Random number generators                                             -->

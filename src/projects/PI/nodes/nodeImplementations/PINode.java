@@ -29,7 +29,7 @@ public class PINode extends Node {
 		int sender;
 		
 		while(inbox.hasNext()) {
-			Tools.appendToOutput("\n n neighboors:"+this.outgoingConnections.size());
+//			Tools.appendToOutput("\n n neighboors:"+this.outgoingConnections.size());
 			Message msg = inbox.next();
 			sender = inbox.getSender().ID;
 			//Tools.appendToOutput("\n ID : "+ inbox.getReceiver().ID + "\n");
@@ -44,8 +44,8 @@ public class PINode extends Node {
 					this.setColor(Color.GREEN);
 					reachedList.add((INFMessage)msg);
 					//this.reached = true;
-					Tools.appendToOutput("\n\n TIME: "+ deci.format(Global.currentTime));
-					Tools.appendToOutput("\n Node " + this.ID +" recebeu INF de"+ sender);
+//					Tools.appendToOutput("\n\n TIME: "+ deci.format(Global.currentTime));
+//					Tools.appendToOutput("\n Node " + this.ID +" recebeu INF de"+ sender);
 					MessageTimer infMSG = new MessageTimer(msg);
 					infMSG.startRelative(1,this);
 						
@@ -53,8 +53,8 @@ public class PINode extends Node {
 					this.setColor(Color.GREEN);
 					//this.reached = true;
 					reachedList.add((INFMessage)msg);
-					Tools.appendToOutput("\n\n TIME: "+ deci.format(Global.currentTime));
-					Tools.appendToOutput("\n Node " + this.ID +" recebeu INF de"+ sender);
+//					Tools.appendToOutput("\n\n TIME: "+ deci.format(Global.currentTime));
+//					Tools.appendToOutput("\n Node " + this.ID +" recebeu INF de"+ sender);
 				}
 			
 			}

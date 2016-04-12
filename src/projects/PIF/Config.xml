@@ -257,7 +257,7 @@
 <RandomMessageTransmission distribution="Uniform" min="0.0001" max="0.0005"/>	
 
 <SimTime value="5000"/>
-<Density value="10"/>
+<Density value="20"/>
 <Event>
 	<NumEvents value = "3" />
 	<Time value = "1000" />
@@ -298,6 +298,6 @@
 <Log>
 	<LogFile value="infraLog.txt" />
 </Log>
-																													</Custom>
+																														</Custom>
 </Document>
 

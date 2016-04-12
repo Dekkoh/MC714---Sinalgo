@@ -1,6 +1,7 @@
 package projects.PIF.nodes.nodeImplementations;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import sinalgo.gui.transformation.PositionTransformation;
 import sinalgo.nodes.Node;
 import sinalgo.nodes.messages.Inbox;
 import sinalgo.nodes.messages.Message;
+import sinalgo.runtime.Global;
 import sinalgo.tools.Tools;
 
 public class PIFNode extends Node {
@@ -25,7 +27,7 @@ public class PIFNode extends Node {
 	
 	public enum TNO {TNO_FEEDBACK };
 	private PIF_FeedbackTimer feedbackTimer;
-	
+	DecimalFormat deci = new DecimalFormat("0.0000");
 	public List<INFMessage> reachedList = new ArrayList<INFMessage>();
 	
 	@Override
@@ -33,57 +35,84 @@ public class PIFNode extends Node {
 		// TODO Auto-generated method stub
 		int sender;
 		
+//		while(inbox.hasNext()) {
+//			Message msg = inbox.next();
+//			sender = inbox.getSender().ID;
+//			
+//			//N� recebeu uma mensagem INF	
+//			if(msg instanceof INFMessage) {
+//				System.out.println("Node: "+this.ID+" recebeu INF do Node  "+sender);
+//				INFMessage msgINF = (INFMessage) msg;
+//				
+//				//Setting node level with msg information
+//				if(this.nodeLevel > msgINF.getLevel()+1){
+//					this.nodeLevel = msgINF.getLevel()+1;
+//				}
+//				
+//				if(!this.reachedList.contains((INFMessage) msg))
+//				{
+//					this.setColor(Color.GREEN);
+//					reachedList.add(msgINF);
+//					//this.reached = true;	
+//					this.nextHopToSource = msgINF.getSenderID();
+//					msgINF.setSenderID(this.ID);
+//					//Modify the level carried by the message
+//					msgINF.setLevel(this.nodeLevel+1);
+//					MessageTimer infMSG = new MessageTimer(msgINF);
+//					infMSG.startRelative(0.1,this);
+//					
+//					//Agenda o FEEDBACK
+//					feedbackTimer = new PIF_FeedbackTimer(this, TNO.TNO_FEEDBACK);
+//					feedbackTimer.tnoStartRelative(10, this, TNO.TNO_FEEDBACK);	
+//				}else{
+//					//Agenda o FEEDBACK
+//					feedbackTimer = new PIF_FeedbackTimer(this, TNO.TNO_FEEDBACK);
+//					feedbackTimer.tnoStartRelative(0.1, this, TNO.TNO_FEEDBACK);						
+//				}
+//			}
+//			
+//			//Mensagem de Confirma��o
+//			if(msg instanceof FEEDBACKMessage) {
+//				FEEDBACKMessage msgFeedback = (FEEDBACKMessage) msg;
+//				if (this.ID != 1){
+//					if(msgFeedback.getDestinationID() == this.ID){
+//						msgFeedback.setDestinationID(this.nextHopToSource);
+//						MessageTimer feedbackMSG = new MessageTimer(msgFeedback);
+//						feedbackMSG.startRelative(0.1,this);
+//						System.out.println("Node: "+this.ID+" Recebeu Feedback do Node "+ msgFeedback.getSourceFeedbackID() + " encaminhada pelo Node " +msgFeedback.getSenderID());	
+//					}
+//				}else{ 
+//					System.out.println("Source node recebeu Feedback do Node "+ msgFeedback.getSourceFeedbackID());
+//					receivedFeedback = receivedFeedback + 1;
+//				}
+//			}
+//		}
+
 		while(inbox.hasNext()) {
+			Tools.appendToOutput("\n n neighboors:"+this.outgoingConnections.size());
 			Message msg = inbox.next();
 			sender = inbox.getSender().ID;
-			
+			//Tools.appendToOutput("\n ID : "+ inbox.getReceiver().ID + "\n");
 			//N� recebeu uma mensagem INF	
 			if(msg instanceof INFMessage) {
-				System.out.println("Node: "+this.ID+" recebeu INF do Node  "+sender);
-				INFMessage msgINF = (INFMessage) msg;
+				//Verifica se � a primeira vez que o n� recebe INF
+				//if(this.reachedList.contains((INFMessage) msg)) System.out.println("contains ");
+				//if(!this.reachedList.contains((INFMessage) msg))  System.out.println("DOESNT contains  ");
+				//System.out.println(reachedList.size());
 				
-				//Setting node level with msg information
-				if(this.nodeLevel > msgINF.getLevel()+1){
-					this.nodeLevel = msgINF.getLevel()+1;
-				}
-				
-				if(!this.reachedList.contains((INFMessage) msg))
-				{
+				if(!this.reachedList.contains((INFMessage) msg)){
 					this.setColor(Color.GREEN);
-					reachedList.add(msgINF);
-					//this.reached = true;	
-					this.nextHopToSource = msgINF.getSenderID();
-					msgINF.setSenderID(this.ID);
-					//Modify the level carried by the message
-					msgINF.setLevel(this.nodeLevel+1);
-					MessageTimer infMSG = new MessageTimer(msgINF);
-					infMSG.startRelative(0.1,this);
-					
-					//Agenda o FEEDBACK
-					feedbackTimer = new PIF_FeedbackTimer(this, TNO.TNO_FEEDBACK);
-					feedbackTimer.tnoStartRelative(10, this, TNO.TNO_FEEDBACK);	
-				}else{
-					//Agenda o FEEDBACK
-					feedbackTimer = new PIF_FeedbackTimer(this, TNO.TNO_FEEDBACK);
-					feedbackTimer.tnoStartRelative(0.1, this, TNO.TNO_FEEDBACK);						
+					reachedList.add((INFMessage)msg);
+					//this.reached = true;
+					Tools.appendToOutput("\n\n TIME: "+ deci.format(Global.currentTime));
+					Tools.appendToOutput("\n Node " + this.ID +" recebeu INF de"+ sender);
+					MessageTimer infMSG = new MessageTimer(msg);
+					infMSG.startRelative(1,this);
+						
 				}
+			
 			}
 			
-			//Mensagem de Confirma��o
-			if(msg instanceof FEEDBACKMessage) {
-				FEEDBACKMessage msgFeedback = (FEEDBACKMessage) msg;
-				if (this.ID != 1){
-					if(msgFeedback.getDestinationID() == this.ID){
-						msgFeedback.setDestinationID(this.nextHopToSource);
-						MessageTimer feedbackMSG = new MessageTimer(msgFeedback);
-						feedbackMSG.startRelative(0.1,this);
-						System.out.println("Node: "+this.ID+" Recebeu Feedback do Node "+ msgFeedback.getSourceFeedbackID() + " encaminhada pelo Node " +msgFeedback.getSenderID());	
-					}
-				}else{ 
-					System.out.println("Source node recebeu Feedback do Node "+ msgFeedback.getSourceFeedbackID());
-					receivedFeedback = receivedFeedback + 1;
-				}
-			}
 		}
 	}
 			
@@ -105,17 +134,27 @@ public class PIFNode extends Node {
 	public void init() {
 		//Considerando que o n� 1 tem a mensagem inf
     
-		if (this.ID==1){
+//		if (this.ID==1){
+//			for(int i=0; i<1000; i++){
+//				this.setColor(Color.RED);
+//				this.nextHopToSource = this.ID;
+//
+//				INFMessage msg = new INFMessage(this.ID, i, 0);
+//				MessageTimer infMSG = new MessageTimer (msg);
+//				reachedList.add(msg);
+//		  		infMSG.startRelative(0.1, this);
+//			}
+//		}
+    	
+    	if (this.ID==1){
 			for(int i=0; i<1000; i++){
 				this.setColor(Color.RED);
-				this.nextHopToSource = this.ID;
-
-				INFMessage msg = new INFMessage(this.ID, i, 0);
+				INFMessage msg = new INFMessage(this.ID, i);
 				MessageTimer infMSG = new MessageTimer (msg);
 				reachedList.add(msg);
 		  		infMSG.startRelative(0.1, this);
 			}
-		}
+    	}
 
 	}
     
