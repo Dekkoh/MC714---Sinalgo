@@ -20,7 +20,7 @@ import sinalgo.tools.Tools;
 public class PIFNode extends Node {
 	//private boolean reached = false;
 	private int nextHopToSource;
-	private int nodeLevel = 0;
+	private int nodeLevel;
 	public static int sentINF = 0;
 	public static int sentFeedback = 0;
 	public static int receivedFeedback = 0;
@@ -28,8 +28,8 @@ public class PIFNode extends Node {
 	public enum TNO {TNO_FEEDBACK };
 	private PIF_FeedbackTimer feedbackTimer;
 	DecimalFormat deci = new DecimalFormat("0.0000");
-	public List<INFMessage> reachedList = new ArrayList<INFMessage>();
-	
+	public List<INFMessage> reachedMessageList = new ArrayList<INFMessage>();
+	public List<FEEDBACKMessage> reachedFeedList = new ArrayList<FEEDBACKMessage>();
 	@Override
 	public void handleMessages(Inbox inbox) {
 		// TODO Auto-generated method stub
@@ -100,9 +100,9 @@ public class PIFNode extends Node {
 				//if(!this.reachedList.contains((INFMessage) msg))  System.out.println("DOESNT contains  ");
 				//System.out.println(reachedList.size());
 				
-				if(!this.reachedList.contains((INFMessage) msg)){
+				if(!this.reachedMessageList.contains((INFMessage) msg)){
 					this.setColor(Color.GREEN);
-					reachedList.add((INFMessage)msg);
+					reachedMessageList.add((INFMessage)msg);
 					//this.reached = true;
 					Tools.appendToOutput("\n\n TIME: "+ deci.format(Global.currentTime));
 					Tools.appendToOutput("\n Node " + this.ID +" recebeu INF de"+ sender);
@@ -111,6 +111,21 @@ public class PIFNode extends Node {
 						
 				}
 			
+			}
+			//Mensagem de Confirma��o
+			if(msg instanceof FEEDBACKMessage) {
+				FEEDBACKMessage msgFeedback = (FEEDBACKMessage) msg;
+				if (this.ID != 1){
+					if(msgFeedback.getDestinationID() == this.ID){
+						msgFeedback.setDestinationID(this.nextHopToSource);
+						MessageTimer feedbackMSG = new MessageTimer(msgFeedback);
+						feedbackMSG.startRelative(0.1,this);
+						System.out.println("Node: "+this.ID+" Recebeu Feedback do Node "+ msgFeedback.getSourceFeedbackID() + " encaminhada pelo Node " +msgFeedback.getSenderID());	
+					}
+				}else{ 
+					System.out.println("Source node recebeu Feedback do Node "+ msgFeedback.getSourceFeedbackID());
+					receivedFeedback = receivedFeedback + 1;
+				}
 			}
 			
 		}
@@ -147,12 +162,14 @@ public class PIFNode extends Node {
 //		}
     	
     	if (this.ID==1){
+    		this.nextHopToSource = this.ID;
+    		this.nodeLevel = 0;
 			for(int i=0; i<1000; i++){
 				this.setColor(Color.RED);
-				INFMessage msg = new INFMessage(this.ID, i);
+				INFMessage msg = new INFMessage(this.ID, i, this.nodeLevel);
 				MessageTimer infMSG = new MessageTimer (msg);
-				reachedList.add(msg);
-		  		infMSG.startRelative(0.1, this);
+				reachedMessageList.add(msg);
+		  		infMSG.startRelative(0.1 + 5*i, this);
 			}
     	}
 
@@ -188,5 +205,43 @@ public class PIFNode extends Node {
 		// TODO Auto-generated method stub
 		
 	}
+	public void changeColorMessage(int ID) {
+		switch (ID % 5) {
+		case 0:
+			this.setColor(Color.GREEN);
+			break;
+		case 1:
+			this.setColor(Color.BLUE);
+			break;
+		case 2:
+			this.setColor(Color.YELLOW);
+			break;
+		case 3:
+			this.setColor(Color.CYAN);
+			break;
+		case 4:
+			this.setColor(Color.MAGENTA);
+			break;
+		}
+	}
+	public void changeColorFeedback(int ID) {
+			switch (ID % 5) {
+			case 0:
+				this.setColor(Color.ORANGE);
+				break;
+			case 1:
+				this.setColor(Color.BLACK);
+				break;
+			case 2:
+				this.setColor(Color.DARK_GRAY);
+				break;
+			case 3:
+				this.setColor(Color.LIGHT_GRAY);
+				break;
+			case 4:
+				this.setColor(Color.PINK);
+				break;
+			}
+		}
 
 }

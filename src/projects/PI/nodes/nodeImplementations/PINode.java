@@ -41,7 +41,8 @@ public class PINode extends Node {
 				//System.out.println(reachedList.size());
 				
 				if(!this.reachedList.contains((INFMessage) msg) && this.ID % 3 == 1){
-					this.setColor(Color.GREEN);
+					//this.setColor(Color.GREEN);
+					changeColor(((INFMessage) msg).getMessageID());
 					reachedList.add((INFMessage)msg);
 					//this.reached = true;
 //					Tools.appendToOutput("\n\n TIME: "+ deci.format(Global.currentTime));
@@ -50,7 +51,8 @@ public class PINode extends Node {
 					infMSG.startRelative(1,this);
 						
 				}else if (!this.reachedList.contains((INFMessage) msg) && this.ID % 3 != 1) {
-					this.setColor(Color.GREEN);
+					//this.setColor(Color.GREEN);
+					changeColor(((INFMessage) msg).getMessageID());
 					//this.reached = true;
 					reachedList.add((INFMessage)msg);
 //					Tools.appendToOutput("\n\n TIME: "+ deci.format(Global.currentTime));
@@ -74,7 +76,7 @@ public class PINode extends Node {
 				INFMessage msg = new INFMessage(this.ID, i);
 				MessageTimer infMSG = new MessageTimer (msg);
 				reachedList.add(msg);
-		  		infMSG.startRelative(0.1, this);
+		  		infMSG.startRelative(0.1 + 5*i, this);
 			}
     	}
 
@@ -109,6 +111,25 @@ public class PINode extends Node {
 	public void checkRequirements() throws WrongConfigurationException {
 		// TODO Auto-generated method stub
 		
+	}
+	public void changeColor(int ID) {
+		switch (ID % 5) {
+		case 0:
+			this.setColor(Color.GREEN);
+			break;
+		case 1:
+			this.setColor(Color.BLUE);
+			break;
+		case 2:
+			this.setColor(Color.YELLOW);
+			break;
+		case 3:
+			this.setColor(Color.CYAN);
+			break;
+		case 4:
+			this.setColor(Color.MAGENTA);
+			break;
+		}
 	}
 
 }
