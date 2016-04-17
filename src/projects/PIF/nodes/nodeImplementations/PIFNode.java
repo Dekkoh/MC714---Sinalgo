@@ -20,7 +20,7 @@ import sinalgo.tools.Tools;
 public class PIFNode extends Node {
 	//private boolean reached = false;
 	private int nextHopToSource;
-	private int nodeLevel = 0;
+	private int nodeLevel = 99999;
 	public static int sentINF = 0;
 	public static int sentFeedback = 0;
 	public static int receivedFeedback = 0;
@@ -28,8 +28,8 @@ public class PIFNode extends Node {
 	public enum TNO {TNO_FEEDBACK };
 	private PIF_FeedbackTimer feedbackTimer;
 	DecimalFormat deci = new DecimalFormat("0.0000");
-	public List<INFMessage> reachedList = new ArrayList<INFMessage>();
-	
+	public List<INFMessage> reachedMessageList = new ArrayList<INFMessage>();
+	public List<FEEDBACKMessage> reachedFeedList = new ArrayList<FEEDBACKMessage>();
 	@Override
 	public void handleMessages(Inbox inbox) {
 		// TODO Auto-generated method stub
@@ -87,38 +87,77 @@ public class PIFNode extends Node {
 //				}
 //			}
 //		}
-
+		//Primeira parte do PIFNode: Ele verifica se tem visinhos pra ele mandar a msg (inboc.hasnext).
 		while(inbox.hasNext()) {
 			Tools.appendToOutput("\n n neighboors:"+this.outgoingConnections.size());
 			Message msg = inbox.next();
 			sender = inbox.getSender().ID;
 			//Tools.appendToOutput("\n ID : "+ inbox.getReceiver().ID + "\n");
 			//Nï¿½ recebeu uma mensagem INF	
+			
+			//Verificação de tipo de mensagem: Inf
+				//Se for do tipo inf, ele se comporta 
 			if(msg instanceof INFMessage) {
-				//Verifica se ï¿½ a primeira vez que o nï¿½ recebe INF
-				//if(this.reachedList.contains((INFMessage) msg)) System.out.println("contains ");
-				//if(!this.reachedList.contains((INFMessage) msg))  System.out.println("DOESNT contains  ");
-				//System.out.println(reachedList.size());
-				
-				if(!this.reachedList.contains((INFMessage) msg)){
-					this.setColor(Color.GREEN);
-					reachedList.add((INFMessage)msg);
-					//this.reached = true;
-					Tools.appendToOutput("\n\n TIME: "+ deci.format(Global.currentTime));
-					Tools.appendToOutput("\n Node " + this.ID +" recebeu INF de"+ sender);
-					MessageTimer infMSG = new MessageTimer(msg);
-					infMSG.startRelative(1,this);
+				System.out.println("Node: "+this.ID+" recebeu INF do Node  "+sender);
+					INFMessage msgINF = (INFMessage) msg;
+					
+					//Setting node level with msg information
+					if(this.nodeLevel > msgINF.getLevel()+1){
+						this.nodeLevel = msgINF.getLevel()+1;	//Atualiza o level do node atual
+						this.nextHopToSource = msgINF.getSenderID(); //Atualiza quem é o pai.				
 						
+					}
+					//Verificação: Vé se ele envia ou não a mensagem de informação na rede.
+					//Primeiro caso: Ele envia a mensagem de informação na rede.
+					if(!this.reachedMessageList.contains((INFMessage) msg) && this.ID % 3 == 1)
+					{
+						this.changeColorMessage(msgINF.getMessageID());
+						reachedMessageList.add(msgINF);
+						//this.reached = true;		
+//						this.nextHopToSource = msgINF.getSenderID();
+						msgINF.setSenderID(this.ID);
+						//Modify the level carried by the message
+//						msgINF.setLevel(this.nodeLevel + 1); //Antes: incluia +1 no nodeLevel. Comentei isso pq acho desnecessário, visto que o nodeLevel já é atualizado anteriormente,
+						msgINF.setLevel(this.nodeLevel); //Agora: não incrementa adicionalmente o nodeLevel. 
+						MessageTimer infMSG = new MessageTimer(msgINF);
+						infMSG.startRelative(0.1,this);
+						
+						//Agenda o FEEDBACK
+						feedbackTimer = new PIF_FeedbackTimer(this, TNO.TNO_FEEDBACK);
+						feedbackTimer.tnoStartRelative(10, this, TNO.TNO_FEEDBACK);	
+					}
+					//Segundo caso: ele não envia a mensagem de informação na rede. Ele temporariza o timer do feedback.
+					else if(!this.reachedMessageList.contains((INFMessage) msg) && this.ID % 3 != 1){ 
+						//Agenda o FEEDBACK
+						this.changeColorMessage(msgINF.getMessageID());
+						reachedMessageList.add(msgINF);
+						feedbackTimer = new PIF_FeedbackTimer(this, TNO.TNO_FEEDBACK);
+						feedbackTimer.tnoStartRelative(10, this, TNO.TNO_FEEDBACK);						
+					}
 				}
 			
+				
+			//Mensagem de Confirmaï¿½ï¿½o
+			if(msg instanceof FEEDBACKMessage) {
+				FEEDBACKMessage msgFeedback = (FEEDBACKMessage) msg;
+				if (this.ID != 1){
+					if(msgFeedback.getDestinationID() == this.ID){
+						msgFeedback.setDestinationID(this.nextHopToSource);
+						MessageTimer feedbackMSG = new MessageTimer(msgFeedback);
+						feedbackMSG.startRelative(0.1,this);
+						System.out.println("Node: "+this.ID+" Recebeu Feedback do Node "+ msgFeedback.getSourceFeedbackID() + " encaminhada pelo Node " +msgFeedback.getSenderID());	
+					}
+				}else{ 
+					System.out.println("Source node recebeu Feedback do Node "+ msgFeedback.getSourceFeedbackID());
+					receivedFeedback = receivedFeedback + 1;
+				}
 			}
-			
+		
 		}
-	}
-			
+	}			
 		
 	public void feedbackStart(){
-		MessageTimer feedbackMSG = new MessageTimer (new FEEDBACKMessage(this.ID, this.ID, this.nextHopToSource));
+		MessageTimer feedbackMSG = new MessageTimer (new FEEDBACKMessage(this.ID, this.ID, this.nextHopToSource, this.nodeLevel));
 	  	feedbackMSG.startRelative(0.1, this);		
 	}
 	
@@ -147,12 +186,14 @@ public class PIFNode extends Node {
 //		}
     	
     	if (this.ID==1){
+    		this.nextHopToSource = this.ID;
+    		this.nodeLevel = 0;
 			for(int i=0; i<1000; i++){
 				this.setColor(Color.RED);
-				INFMessage msg = new INFMessage(this.ID, i);
+				INFMessage msg = new INFMessage(this.ID, i, this.nodeLevel);
 				MessageTimer infMSG = new MessageTimer (msg);
-				reachedList.add(msg);
-		  		infMSG.startRelative(0.1, this);
+				reachedMessageList.add(msg);
+		  		infMSG.startRelative(0.1 + 5*i, this);
 			}
     	}
 
@@ -188,5 +229,43 @@ public class PIFNode extends Node {
 		// TODO Auto-generated method stub
 		
 	}
+	public void changeColorMessage(int ID) {
+		switch (ID % 5) {
+		case 0:
+			this.setColor(Color.GREEN);
+			break;
+		case 1:
+			this.setColor(Color.BLUE);
+			break;
+		case 2:
+			this.setColor(Color.YELLOW);
+			break;
+		case 3:
+			this.setColor(Color.CYAN);
+			break;
+		case 4:
+			this.setColor(Color.MAGENTA);
+			break;
+		}
+	}
+	public void changeColorFeedback(int ID) {
+			switch (ID % 5) {
+			case 0:
+				this.setColor(Color.ORANGE);
+				break;
+			case 1:
+				this.setColor(Color.BLACK);
+				break;
+			case 2:
+				this.setColor(Color.DARK_GRAY);
+				break;
+			case 3:
+				this.setColor(Color.LIGHT_GRAY);
+				break;
+			case 4:
+				this.setColor(Color.PINK);
+				break;
+			}
+		}
 
 }
