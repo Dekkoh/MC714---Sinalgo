@@ -94,7 +94,7 @@ public class MessageTimer extends Timer {
 		this.receiver = null; // indicates broadcasting
 	}
 	@Override
-	public void fire() {
+	public void fire() { //fire.: ele dá o trigger de enviar a msg, quando o tempo expira.
 		if(receiver != null) { // there's a receiver => unicast the message
 			this.node.send(msg, receiver);
 		} else { // there's no reciever => broadcast the message
@@ -102,7 +102,7 @@ public class MessageTimer extends Timer {
 		
 			if(msg instanceof INFMessage){ 
 				System.out.println("Node: "+ this.node.ID +" broadcast INF ");
-				PIFNode.sentINF = PIFNode.sentINF + 1;
+				PIFNode.sentINF = PIFNode.sentINF + 1; //contador de msg enviadas.
 				//System.out.println("Enviadas: "+ PIFNode.SentINF);
 			}
 			

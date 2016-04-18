@@ -8,22 +8,32 @@ public class PIF_FeedbackTimer extends Timer {
 	
 	private PIFNode.TNO tno;
 	PIFNode n;
-	public PIF_FeedbackTimer (PIFNode n, PIFNode.TNO tno){
+	
+	private int index;
+	
+	public PIF_FeedbackTimer (PIFNode n, PIFNode.TNO tno, int index){
 		this.tno = tno;
 		this.n = n;
+		this.index = index;
 	}
-
-
+	
+	
 	@Override
 	public void fire() {
 		// TODO Auto-generated method stub
-		n.timeout(tno);
+		n.timeout(tno, index);
 	}
 	
 	public void tnoStartRelative(double time, Node n, PIFNode.TNO tno){
 		this.tno=tno;
 		super.startRelative(time, n);
 	}
+	public void tnoStartRelative(double time, Node n, PIFNode.TNO tno, int index){
+		this.index = index;
+		this.tno=tno;
+		super.startRelative(time, n);
+	}
+	
 	public void tnoStartGlobalRelative(double time, PIFNode.TNO tno){
 		this.tno=tno;
 		super.startGlobalTimer(time);

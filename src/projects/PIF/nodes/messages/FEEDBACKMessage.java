@@ -72,12 +72,14 @@ public class FEEDBACKMessage extends Message {
 		this.level = Level;
 	}
 
-	public boolean equals(Object obj) {
+	public boolean equals(Object obj) { //Mudei o campo do equals pra inserir na lista de feedbacks.
+		//Ele compara se o endereco da mensagem eh igual (index msg).
+		//se for, entao ele diz que eh verdadeiro, e inclui na lista. senao, falso
 		FEEDBACKMessage msg = (FEEDBACKMessage) obj;
 		if(msg.getMessageID() == this.messageID){
-			if(msg.getLevel() > this.level){
+		//	if(msg.getLevel() > this.level){ Mantenha comentado
 				return true;
-			}
+	//		} Mantenha comentado.
 			
 		}
 		return false;
